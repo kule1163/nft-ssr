@@ -14,13 +14,8 @@ const WalletConnection = () => {
     try {
       // Check if the MetaMask extension is available
       if (window.ethereum) {
-        // Find the Coinbase Wallet provider in the list of available providers
-        let walletProvider = window.ethereum.providers.find(
-          (x: any) => x.isMetaMask
-        );
-
         // Create a new ethers provider using the wallet provider
-        const provider = new ethers.BrowserProvider(walletProvider);
+        const provider = new ethers.BrowserProvider(window.ethereum);
 
         // Get the signer (user account) from the provider
         const signer = await provider.getSigner();
@@ -89,21 +84,23 @@ const WalletConnection = () => {
   };
 
   useEffect(() => {
-    // Check if MetaMask (or a similar Ethereum wallet) is installed
-    if (window.ethereum) {
-      // Attach an event listener for changes in connected accounts
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
+    if (isConnected) {
+      // Check if MetaMask (or a similar Ethereum wallet) is installed
+      if (window.ethereum) {
+        // Attach an event listener for changes in connected accounts
+        window.ethereum.on("accountsChanged", handleAccountsChanged);
 
-      // Cleanup the event listener when the component unmounts
-      return () => {
-        window.ethereum.removeListener(
-          "accountsChanged",
-          handleAccountsChanged
-        );
-      };
-    } else {
-      // Display an alert if MetaMask extension is not installed
-      alert("Install the MetaMask extension!!");
+        // Cleanup the event listener when the component unmounts
+        return () => {
+          window.ethereum.removeListener(
+            "accountsChanged",
+            handleAccountsChanged
+          );
+        };
+      } else {
+        // Display an alert if MetaMask extension is not installed
+        alert("Install the MetaMask extension!!");
+      }
     }
   }, []); // Empty dependency array to run the effect only once during component mount
 
